@@ -66,7 +66,7 @@ class EventCardList extends HookWidget {
         child: SizedBox(
           height: 64,
           child: ListTile(
-            title: Text(event.title),
+            title: Text('${event.title}：${event.guestCount}人'),
             subtitle: Text(event.updateTime.toString()),
             trailing: event.uid == uid ? const Icon(Icons.face_rounded) : null,
           ),
