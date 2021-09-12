@@ -13,20 +13,11 @@ class JoinButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final state = useProvider(eventDetailViewModelProvider);
-    final stateNotifier = useProvider(eventDetailViewModelProvider.notifier);
-    final buttonFuture = useFuture(stateNotifier.initjoinEventButton());
 
-    if (buttonFuture.hasData) {
-      return SizedBox(
-        width: 200,
-        child: button(state: state),
-      );
-    } else {
-      return const SizedBox(
-        width: 200,
-        child: CircularProgressIndicator(),
-      );
-    }
+    return SizedBox(
+      width: 200,
+      child: button(state: state),
+    );
   }
 
   Widget button({required SelectEvent state}) {
