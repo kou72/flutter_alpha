@@ -1,19 +1,22 @@
 // 依存パッケージ
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 // 参照ファイル
 import '/model/auth_model.dart';
 import '/model/events_model.dart';
 import '/model/guests_model.dart';
 
-final eventDetailViewModelProvider =
-    StateNotifierProvider<EventDetailViewModel, Event>(
-  (ref) => EventDetailViewModel(),
-);
+// freezed 生成ファイル
+part 'event_detail_view_model.freezed.dart';
 
-class EventDetailViewModel extends StateNotifier<Event> {
-  EventDetailViewModel() : super(const Event());
+final eventDetailViewModelProvider =
+    StateNotifierProvider<EventDetailViewModel, SelectEvent>(
+        (ref) => EventDetailViewModel());
+
+class EventDetailViewModel extends StateNotifier<SelectEvent> {
+  EventDetailViewModel() : super(const SelectEvent());
 
   void initEvent({required Event event}) {
     state = state.copyWith(
@@ -25,12 +28,30 @@ class EventDetailViewModel extends StateNotifier<Event> {
     );
   }
 
+  Future<void> initjoinEventButton() async {
+    final user = Auth().getCurrentUser();
+    if (user.uid == state.uid) {
+      state = state.copyWith(method: null, canJoin: true);
+    } else {
+      final canJoin = await canJoinEvent();
+      final method = canJoin ? joinEvent : cancelEvent;
+      state = state.copyWith(method: method, canJoin: canJoin);
+    }
+  }
+
   Future joinEvent() async {
-    final can = await canJoinEvent();
-    if (can == true) {
-      await EventsDB().incrementGuestCount(state);
+    if (state.canJoin == true) {
+      await EventsDB().incrementGuestCount(state.uid, state.id);
       await GuestsDB().setGuests(state.uid, state.id);
-      state = state.copyWith(guestCount: state.guestCount + 1);
+      state = state.copyWith(guestCount: state.guestCount + 1, canJoin: false);
+    }
+  }
+
+  Future cancelEvent() async {
+    if (state.canJoin == false) {
+      await EventsDB().decrementGuestCount(state.uid, state.id);
+      await GuestsDB().deleteGuests(state.uid, state.id);
+      state = state.copyWith(guestCount: state.guestCount - 1, canJoin: true);
     }
   }
 
@@ -38,10 +59,23 @@ class EventDetailViewModel extends StateNotifier<Event> {
     final user = Auth().getCurrentUser();
     final guestList = await GuestsDB().getGuests(state.uid, state.id);
     final isJoin = guestList.map((guest) => guest.uid).contains(user.uid);
-    if (isJoin == false && user.uid != state.uid) {
+    if (isJoin == false) {
       return true;
     } else {
       return false;
     }
   }
+}
+
+@freezed
+abstract class SelectEvent with _$SelectEvent {
+  const factory SelectEvent({
+    @Default('') String id,
+    @Default('') String title,
+    @Default('') String body,
+    @Default('') String uid,
+    @Default(0) int guestCount,
+    @Default(null) Function()? method,
+    @Default(false) bool canJoin,
+  }) = _SelectEvent;
 }

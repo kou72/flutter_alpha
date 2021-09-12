@@ -28,6 +28,14 @@ class GuestsDB {
         .doc(user.uid)
         .set(guest.toJson());
   }
+
+  Future deleteGuests(String eventUid, String eventId) async {
+    final user = Auth().getCurrentUser();
+    await FirebaseFirestore.instance
+        .collection('/users/$eventUid/events/$eventId/guests')
+        .doc(user.uid)
+        .delete();
+  }
 }
 
 @freezed

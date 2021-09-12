@@ -12,19 +12,44 @@ class JoinButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = useProvider(eventDetailViewModelProvider);
     final stateNotifier = useProvider(eventDetailViewModelProvider.notifier);
+    final buttonFuture = useFuture(stateNotifier.initjoinEventButton());
 
-    return SizedBox(
-      width: 200,
-      child: ElevatedButton(
-        onPressed: stateNotifier.joinEvent,
+    if (buttonFuture.hasData) {
+      return SizedBox(
+        width: 200,
+        child: button(state: state),
+      );
+    } else {
+      return const SizedBox(
+        width: 200,
+        child: CircularProgressIndicator(),
+      );
+    }
+  }
+
+  Widget button({required SelectEvent state}) {
+    if (state.canJoin == true) {
+      return ElevatedButton(
+        onPressed: state.method,
         style: ButtonStyle(
           padding: MaterialStateProperty.all(
             const EdgeInsets.all(20),
           ),
         ),
-        child: const Text('申し込む'),
-      ),
-    );
+        child: const Text('申し込み'),
+      );
+    } else {
+      return OutlinedButton(
+        onPressed: state.method,
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(
+            const EdgeInsets.all(20),
+          ),
+        ),
+        child: const Text('キャンセル'),
+      );
+    }
   }
 }
