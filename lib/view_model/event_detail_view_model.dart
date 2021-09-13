@@ -43,7 +43,11 @@ class EventDetailViewModel extends StateNotifier<SelectEvent> {
     if (state.canJoin == true) {
       await EventsDB().incrementGuestCount(state.uid, state.id);
       await GuestsDB().setGuests(state.uid, state.id);
-      state = state.copyWith(guestCount: state.guestCount + 1, canJoin: false);
+      state = state.copyWith(
+        guestCount: state.guestCount + 1,
+        method: cancelEvent,
+        canJoin: false,
+      );
     }
   }
 
@@ -51,7 +55,11 @@ class EventDetailViewModel extends StateNotifier<SelectEvent> {
     if (state.canJoin == false) {
       await EventsDB().decrementGuestCount(state.uid, state.id);
       await GuestsDB().deleteGuests(state.uid, state.id);
-      state = state.copyWith(guestCount: state.guestCount - 1, canJoin: true);
+      state = state.copyWith(
+        guestCount: state.guestCount - 1,
+        method: joinEvent,
+        canJoin: true,
+      );
     }
   }
 
@@ -76,6 +84,6 @@ abstract class SelectEvent with _$SelectEvent {
     @Default('') String uid,
     @Default(0) int guestCount,
     @Default(null) Function()? method,
-    @Default(false) bool canJoin,
+    @Default(true) bool canJoin,
   }) = _SelectEvent;
 }
