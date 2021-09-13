@@ -1,6 +1,6 @@
 # アプリの紹介
 
-ハッカソン部で[勉強会プラットフォーム(の簡易版)](https://flutter-alpha-0819.web.app/#/)を作りました！  
+ハッカソン部で[勉強会プラットフォーム(の簡易版)](https://flutter-alpha-09131.web.app/#/)を作りました！  
 
 次のような機能を実装しています。
 1. 適当なメールアドレスでアカウント作成
@@ -9,7 +9,8 @@
 
 ![](https://github.com/kou72/flutter_alpha/raw/master/README_image/%E3%83%87%E3%83%A2%E5%8B%95%E7%94%BB.gif)
 
-開発言語はFlutter、ホスティング/認証/DBにFirebaseを使っています。
+開発言語はFlutter/Dart、ホスティング/認証/DBにFirebaseを使っています。  
+Flutter×Firebaseは少ない記述量でモバイルアプリを作る事のできる有名な組み合わせです。
 
 ![](https://github.com/kou72/flutter_alpha/raw/master/README_image/%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A6%82%E8%A6%81%E5%9B%B3.png)
 
@@ -57,11 +58,9 @@ MVVMモデルとはコードの役割をView、ViewModel、Modelの3つに分割
 
 - Model  
 アプリの「処理」に関するコードが記述されます。  
-また、ログイン情報やDBから取得したデータなどのステータスを保持します。  
 
 - ViewModel  
 ViewとModelの仲介役になります。  
-Viewと連動するステータスを保持したり、Modelの処理を呼び出します。
 
 ## フォルダ構成
 
@@ -96,38 +95,52 @@ flutter_alpha/lib
 
 ## Q. 「マイイベントリストページ」と「マイイベント詳細ページ」のコードはそれぞれどこに書くべきでしょうか？
 
-「マイイベントリストページ」と「マイイベント編集ページ」について、皆さんならそれぞれの処理をView、ViewModel、Modelのどこに書きますか？
-
-- マイイベントリストページ：自分が作成したイベントを一覧で表示するページ
-- マイイベント詳細ページ：作成したイベントを編集するページ
+「マイイベントリストページ」と「マイイベント編集ページ」について、UI、ステータス、処理を列挙しました。  
+皆さんならそれぞれの処理をView、ViewModel、Modelにどのように分割するでしょうか？
 
 ![](https://github.com/kou72/flutter_alpha/raw/master/README_image/Q%E3%83%9E%E3%82%A4%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88.png)
 
-## A. このアプリでは次のような書き分けを行っています。
+機能  
 
-<details>
-<summary>開く</summary>
+- マイイベントリストページ：自分が作成したイベントを一覧で表示する
+- マイイベント詳細ページ：作成したイベントを編集する
+
+## A. このアプリでは次のような設計にしています。
 
 ![](https://github.com/kou72/flutter_alpha/raw/master/README_image/A%E3%83%9E%E3%82%A4%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88.png)
 
 意識した点
 
-- ViewからModelを**参照して良い**
-- Viewからのインプットに関するステータスはViewModelに持たせる
-- ViewModelから**外部DBにはアクセスしない**
-- 外部DBとの接点はModelに集約する
+- ViewModelはViewに対応するようにファイル分割
+- Modelはバックエンド(今回はFirebase)に対応するようにファイル分割
+- View側からバックエンドは見えないようにする
+- ViewからModelを参照している　←許される？
 
-</details>
 
 ## Q. 「イベントリストページ」と「イベント詳細ページ」のコードはそれぞれどこに書くべきでしょうか？
 
+「イベントリストページ」と「イベント編集ページ」について、UI、ステータス、処理を列挙しました。  
+皆さんならそれぞれの処理をView、ViewModel、Modelにどのように分割するでしょうか？
+
 ![](https://github.com/kou72/flutter_alpha/raw/master/README_image/Q%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88.png)
 
-## 鈴木的なMVVMの解釈  
+機能  
 
-**ViewModelは「見た目」のコードの一部である**
+- イベントリストページ：全てのイベントを一覧で表示するページ
+- イベント詳細ページ：イベントの詳細を確認し、申し込みを行うページ
 
-- そのためViewとViewModelは1対1対応
-  - 1つのViewModelが複数のModelを参照するのはアリ
-- ViewとViewModelは外部の処理とは切り離す
-  - 仮にFirestoreがMongoDBに変わったとしても、書き換えが必要なのはModelのみ
+## A. このアプリでは次のような設計にしています。
+
+![](https://github.com/kou72/flutter_alpha/raw/master/README_image/A%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88.png)
+
+意識した点
+
+- ViewModelはViewに対応するようにファイル分割
+- Modelはバックエンド(今回はFirebase)に対応するようにファイル分割
+- 「更新ボタンを押せるか」判定をViewModelに集約してViewにとってシンプルな構成
+
+## 最後に
+
+皆様レビュー頂きましてありがとうございました。  
+気になった点があれば後日でも遠慮なく言ってください、大変ありがたいです。  
+PRもお待ちしております～。
